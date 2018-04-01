@@ -1,0 +1,29 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>Title</title>
+</head>
+<body>
+    <a href={%url 'booktest:show' '123' %}>显示</a>
+    {{hero.showname}}
+    <hr>
+    {%comment%}
+        {#http://blog.csdn.net/xyp84/article/details/7945094#}
+    {%endcomment%}
+    <ul>
+    {% for a in list1 %}
+        {% if forloop.counter|divisibleby:"2" %}
+
+        <li style="color:red">{{forloop.counter}}:{{a.showname}}</li>
+       {% else %}
+       <li style="color:blue">{{forloop.counter}}:{{a.showname}}</li> 
+       {% endif %}
+       {%empty%}
+       <li> None </li>
+    {%endfor%}
+    </ul>
+</body>
+</html>
+
+

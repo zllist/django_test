@@ -1,0 +1,320 @@
+创建django项目的方法：
+mysql 安装配置
+https://www.2cto.com/database/201612/577717.html
+
+mysql -uroot -p 使用root 进入数据库
+show database; 查看当前的库
+create database test2 charset=utf8; 创建库并设置编码格式
+use test2 使用摸个数据库
+show tables 查看表
+
+desc xxx 查看表结构
+1。pip install --upgrade pip
+sudo apt-get install python-virtualenv
+sudo easy_install virtualenvwrapper
+mkdir $HOME/.virtualenvs
+2.在~/.bashrc中添加行：
+    export WORKON_HOME=$HOME/.virtualenvs
+    source /usr/local/bin/virtualenvwrapper.sh
+ 运行
+ source ~/.bashr
+3.创建python虚拟环境
+mkvirtualenv [虚拟环境名称]
+workon [虚拟环境名称]
+4.退出虚拟环境 离开 deactivate
+5.删除(慎用) 
+rmvirtualenv [虚拟环境名称]
+
+生成迁移
+python manage.py makemigrations
+将models.py 中的类生成对应的sql文件 存放在migrations目录中
+执行迁移
+python manage.py migrate
+
+对于django框架的学习：
+在这个目录里包含了4个子目录
+test1 是第一次创建的一项目 里面什么都没有
+test2 是针对models的练习
+test3 是针对views的练习
+test4 是针对templates的练习
+
+test2中：目录结构
+├── booktest
+│ ├── admin.py
+│ ├── admin.pyc
+│ ├── __init__.py
+│ ├── __init__.pyc
+│ ├── migrations
+│ │ ├── 0001_initial.py
+│ │ ├── 0001_initial.pyc
+│ │ ├── __init__.py
+│ │ └── __init__.pyc
+│ ├── models.py
+│ ├── models.pyc
+│ ├── templates
+│ │ └── booktest
+│ │     └── index.html
+│ ├── tests.py
+│ ├── urls.py
+│ ├── urls.pyc
+│ ├── views.py
+│ └── views.pyc
+├── manage.py
+└── test2
+    ├── __init__.py
+    ├── __init__.pyc
+    ├── settings.py
+    ├── settings.pyc
+    ├── urls.py
+    ├── urls.pyc
+    ├── wsgi.py
+    └── wsgi.pyc
+涉及的内容以及自己认为的重点：
+settings.py 文件
+INSTALLED_APPS 中添加自己的app名字 'booktest'
+TEMPLATES 中 添加模板的路径：'DIRS': [os.path.join(BASE_DIR,'templates')],
+由于使用的是mysql数据库：
+DATABASES = {                                
+    'default': {                             
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'test2',                     
+        'USER': 'root',                      
+        'PASSWORD':'xxxxxx',            
+        'HOST':'127.0.0.1',                  
+        'PORT':'3306',                       
+    }                                        
+}
+
+在settings.py 的同级目录下 urls.py 的内容    
+from django.conf.urls import include, url     
+from django.contrib import admin                                                          
+urlpatterns = [                               
+    url(r'^admin/', include(admin.site.urls)),
+    url(r'^', include('booktest.urls')),      
+]    
+
+在booktest目录下的urls.py 中   
+from django.conf.urls import url 
+import views                                                  
+urlpatterns = [                  
+    url(r'^$',views.index),                                      
+]  
+通过这两个文件让用来发来的请求去寻找views.py 以及templates 中对应返回的html  
+
+在models.py 文件中
+class BookInfoManager(models.Manager)这个类继承django框架自带的管理类
+其中的create方法 是自实现的创建数据的方法
+get_queryset方法 是自己调用父类的获取数据方法 没有
+在 BookInfo 文件中
+class Meta:            
+    db_table='bookinfo' 修改BookInfo 在数据库中的名字
+HeroInfo中
+book=models.ForeignKey(BookInfo) 一对多的外键关联
+数据查询的方法 以下提供一些参考 http://www.ywnds.com/?p=11956
+需要注意的是：
+自定的模型类 不能重写__init__ 函数
+单独定义创建的方法    
+或者在自定义管理器中增加创建数据的方法   
+测试数据时 可以使用
+python manage.py shell
+
+>>> from datetime import datetime
+>>> b.bpub_date=datetime(year=1990,month=1,day=11)
+>>> b.save()
+>>> BookInfo.objects.all()
+<QuerySet [<BookInfo: BookInfo object (1)>]>
+>>> quit()    
+
+test3 是views 视图的学习部分  目录结构：
+├── booktest
+│ ├── admin.py
+│ ├── admin.pyc
+│ ├── __init__.py
+│ ├── __init__.pyc
+│ ├── migrations
+│ │ ├── __init__.py
+│ │ └── __init__.pyc
+│ ├── models.py
+│ ├── models.pyc
+│ ├── templates
+│ │ ├── 404.html
+│ │ └── booktest
+│ │     ├── getTest1.html
+│ │     ├── getTest2.html
+│ │     ├── getTest3.html
+│ │     ├── postTest1.html
+│ │     ├── postTest2.html
+│ │     ├── session1.html
+│ │     └── session2.html
+│ ├── tests.py
+│ ├── urls.py
+│ ├── urls.pyc
+│ ├── views.py
+│ └── views.pyc
+├── db.sqlite3
+├── manage.py
+└── test3
+    ├── __init__.py
+    ├── __init__.pyc
+    ├── settings.py
+    ├── settings.pyc
+    ├── urls.py
+    ├── urls.pyc
+    ├── wsgi.py
+    └── wsgi.pyc      
+
+settings.py 的设置跟test2中的相似
+urls.py 
+from django.conf.urls import include, url       
+from django.contrib import admin                                                             
+urlpatterns = [                                 
+    url(r'^admin/', include(admin.site.urls)),  
+    url(r'^booktest/',include('booktest.urls')),
+] 
+在booktest目录下的urls.py 文件
+from django.conf.urls import url                      
+import views                                                                                             
+urlpatterns=[                                         
+    url(r'^$',views.index),                           
+    url(r'^(\d+)$',views.detail), #()的表示在提交时的参数   
+    #get方法                 
+    url(r'^getTest1/$',views.getTest1),               
+    url(r'^getTest2/$',views.getTest2),               
+    url(r'^getTest3/$',views.getTest3), 
+    #post方法                                                                   
+    url(r'^postTest1/$',views.postTest1),             
+    url(r'^postTest2/$',views.postTest2), 
+    #cookies                                                                 
+    url(r'^cookieTest/$',views.ccokieTest),
+    #url重定向的使用           
+    url(r'^redTest1/$',views.redTest1),               
+    url(r'^redTest2/$',views.redTest2), 
+    #session的设定                                                                                                                      
+    url(r'^session1/$', views.session1),              
+    url(r'^session2/$', views.session2),              
+    url(r'^session2_handle/$', views.session2_handle),
+    url(r'^session3/$', views.session3),                                                                   
+]                                                     
+ 主要说明一下 views.py 中：
+ url(r'^(\d+)$',views.detail) 正则中包含（） 表示去出其中的值                                                              
+def index(request):                                           
+	ti = loader.get-template('xxx/index.html')                  
+	content = RerquestContext(request,{'h1','hello'}            
+	return HttpResopnse(t1.render(context))                                                                                 
+简写方案：                                                    
+	def index(request):                                         
+		return render(request,'xxx/index.html', {'h1','hello'}    
+
+ 状态保持：
+  http协议是无状态  不记录跟网站交互的信息      
+  
+  一种方式是cookie 记录历史
+  
+  第二种方式：session
+  
+  在setting.py 中默认启用的
+  'django.contrib.sessions'
+  对应的中间键：
+  'django.contrib.sessions.middleware.SessionMiddleware',
+  
+  request.session.set_expiry(value)
+你可以传递四种不同的值给它：
+* 如果value是个整数，session会在些秒数后失效。
+* 如果value是个datatime或timedelta，session就会在这个时间后失效。
+* 如果value是0,用户关闭浏览器session就会失效。
+* 如果value是None,session会依赖全局session失效策略
+      
+test4 中 模板的使用 主要设计 dtl 参考https://blog.csdn.net/qq_14898613/article/details/61196500 
+├── booktest
+│ ├── admin.py
+│ ├── admin.pyc
+│ ├── __init__.py
+│ ├── __init__.pyc
+│ ├── migrations
+│ │├── __init__.py
+│ │└── __init__.pyc
+│ ├── models.py
+│ ├── models.pyc
+│ ├── templates
+│ │ └── booktest
+│ │     ├── base_goods.html
+│ │     ├── base.html
+│ │     ├── base_user.html
+│ │     ├── csrf1.html
+│ │     ├── htmlTest.html
+│ │     ├── index2.html
+│ │     ├── index.html
+│ │     ├── show.html
+│ │     ├── template.html
+│ │     ├── user1.html
+│ │     ├── user2.html
+│ │     └── verifyTest1.html
+│ ├── tests.py
+│ ├── urls.py
+│ ├── urls.pyc
+│ ├── views.py
+│ └── views.pyc
+├── manage.py
+└── test4
+    ├── __init__.py
+    ├── __init__.pyc
+    ├── settings.py
+    ├── settings.pyc
+    ├── urls.py
+    ├── urls.pyc
+    ├── wsgi.py
+    └── wsgi.pyc
+
+settings.py 文件中：
+MIDDLEWARE_CLASSES 中 跨域请求攻击保护 其他设置 跟前两个相同
+'django.middleware.csrf.CsrfViewMiddleware'
+
+urls.py
+from django.conf.urls import include, url                   
+from django.contrib import admin                                                                                   
+urlpatterns = [                                             
+    url(r'^admin/', include(admin.site.urls)),    
+    #namespace 决定是哪个项目的          
+    url('^', include('booktest.urls',namespace='booktest')),
+]  
+
+在booktest4目录下的urls.py    
+from django.conf.urls import url
+import views
+urlpatterns=[
+    url(r'^$',views.index,name='index'),
+    #name 主要是用来继承使用
+    url(r'^(\d+)/(\d+)$',views.show,name='show'),
+    url(r'^index2$', views.index2, name='index2'),
+    url(r'^user1', views.user1, name='user1'),
+    url(r'^user2', views.user2, name='user2'),
+    url(r'^htmlTest$',views.htmlTest),
+    url(r'^csrf1$',views.csrf1),
+    url(r'^csrf2$',views.csrf2),
+    url(r'^verifyCode$',views.verifyCode),
+    url(r'^verifyTest1', views.verifyTest1),
+    url(r'^verifyTest2', views.verifyTest2),
+
+]                                                     
+        
+主要的语法：
+{%extends 'booktest/base.html' %} 继承哪个html
+html 中填坑的内容
+{% block user_content %}
+{%endblock%}    
+{% csrf_token %}  防止跨域攻击的固定写法 
+index.html 中 通过name 去寻找对应的url
+ <a href={%url 'booktest:show' '123' %}>显示</a> 
+views.py 中
+verifyCode  函数 是用来生成一图片 包含验证码     
+其中 ： 内存读写
+import cStringIO         
+buf=cStringIO.StringIO() 
+image.save(buf,'png')  
+返回
+HttpResponse(buf.getvalue(),'image/png')     
+    content：表示返回的内容，字符串类型
+    charset：表示response采用的编码字符集，字符串类型
+    status_code：响应的HTTP响应状态码
+    content-type：指定输出的MIME类型
+                     
